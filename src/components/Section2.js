@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { Line } from "react-chartjs-2"; // Example usage of a chart (chart.js)
+import line from "./../assets/line.png"; 
+
 import {
   Chart as ChartJS,
   LineElement,
@@ -46,7 +48,16 @@ function Section2() {
       <div className="text-center mb-10">
         <h2 className="text-3xl font-bold">Mon Portefeuille</h2>
         {/* Green line below the title */}
-        <div className="w-24 h-1 bg-[#CFFF24] mx-auto mt-2 rounded-full"></div>
+
+{/* Green line below the title */}
+{/* Image below the title */}
+<div className="flex justify-center mt-2">
+  <img
+    src={line}
+    alt="Decorative Line"
+    className="w-30 py-0"
+  />
+</div>
       </div>
 
       <div className="flex justify-center mb-10 space-x-8">
@@ -54,13 +65,13 @@ function Section2() {
           onClick={() => setShowForm(true)}
           className="bg-[#CFFF24] text-black py-2 px-6 rounded-lg hover:bg-[#A3D500] transition"
         >
-          Button 1
+          Histogramme des Rendements
         </button>
         <button className="bg-[#CFFF24] text-black py-2 px-6 rounded-lg hover:bg-[#A3D500] transition">
-          Button 2
+        Courbe de Performance Cumulée
         </button>
         <button className="bg-[#CFFF24] text-black py-2 px-6 rounded-lg hover:bg-[#A3D500] transition">
-          Button 3
+        Graphique de Volatilité
         </button>
       </div>
 
@@ -68,54 +79,69 @@ function Section2() {
         {/* Form on the left */}
         {showForm && (
           <div className="w-1/3  p-6 rounded-lg ">
-            <h3 className="text-xl font-bold mb-4 text-White">Enter Parameters</h3>
             <form>
               <label className="block mb-4">
-                Initial Investment Amount:
+                Montant initial d’investissement (€)
                 <input
                   type="number"
-                  className="mt-2 p-2 w-full rounded"
+                  className="mt-2 p-2 w-full rounded text-black"
                   placeholder="Ex: 1000"
                 />
               </label>
               <label className="block mb-4">
-                Recurring Contribution Amount:
+              Montant des contributions récurrentes (€)
                 <input
                   type="number"
-                  className="mt-2 p-2 w-full rounded"
+                  className="mt-2 p-2 w-full rounded text-black"
                   placeholder="Ex: 100"
                 />
               </label>
               <label className="block mb-4">
-                Contribution Frequency:
-                <select className="mt-2 p-2 w-full rounded">
-                  <option value="monthly">Monthly</option>
-                  <option value="quarterly">Quarterly</option>
-                  <option value="yearly">Yearly</option>
+              Fréquence des contributions
+                <select className="mt-2 p-2 w-full rounded text-black">
+                  <option value="monthly">Mois</option>
+                  <option value="quarterly">Trimestre</option>
+                  <option value="yearly">Année</option>
                 </select>
               </label>
-              <label className="block mb-4">
-                Investment Duration (in years):
+              <label className="block mb-4 ">
+              Durée d’investissement (ans)
                 <input
                   type="number"
-                  className="mt-2 p-2 w-full rounded"
+                  className="mt-2 p-2 w-full rounded text-black"
                   placeholder="Ex: 5"
                 />
               </label>
               <label className="block mb-4">
-                Annual Management Fees (%):
+              Frais de gestion annuels (€)
                 <input
                   type="number"
-                  className="mt-2 p-2 w-full rounded"
+                  className="mt-2 p-2 w-full rounded text-black"
                   placeholder="Ex: 1"
                 />
               </label>
               <label className="block mb-4">
-                Asset Choices:
-                <select className="mt-2 p-2 w-full rounded">
-                  <option value="stocks">Stocks</option>
-                  <option value="bonds">Bonds</option>
-                  <option value="ETFs">ETFs</option>
+              Sélectionnez vos Actions (Stocks)
+                <select className="mt-2 p-2 w-full rounded text-black">
+                  <option value="stocks">Choice 1</option>
+                  <option value="bonds">Choice 2</option>
+                  <option value="ETFs">Choice 3</option>
+                </select>
+              </label>
+              <label className="block mb-4">
+              Sélectionnez vos Obligations (Bonds)
+                <select className="mt-2 p-2 w-full rounded text-black">
+                  <option value="stocks">Choice 1</option>
+                  <option value="bonds">Choice 2</option>
+                  <option value="ETFs">Choice 3</option>
+                </select>
+              </label>
+              <label className="block mb-4">
+              Sélectionnez vos ETF (Exchange-Traded Funds)
+                <select className="mt-2 p-2 w-full rounded text-black">
+                  <option value="stocks">Choice 1</option>
+                  <option value="bonds">Choice 2</option>
+                  <option value="ETFs">Choice 3</option>
                 </select>
               </label>
             </form>
@@ -126,7 +152,16 @@ function Section2() {
         <div className="w-2/3 py-20" >
           <Line data={data} options={options} />
         </div>
+        
       </div>
+      <div className="flex items-center justify-center py-15">
+  <h1 className="text-3xl font-bold text-center  py-100">
+    Avec ce taux, au bout de <span className="text-[#CFFF24]">5 ans</span>, vous aurez 
+    <span className="text-[#CFFF24]"> 25 000 € </span> dans votre 
+    <span className="text-[#CFFF24]"> Wallet </span> !
+  </h1>
+</div>
+
     </section>
   );
 }

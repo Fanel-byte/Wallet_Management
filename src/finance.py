@@ -52,7 +52,6 @@ def get_evolution_nb_actions(serie_adj_close: pd.Series, montant_initial, montan
 def filter_first_day_of_the_month(serie_adj_close: pd.Series):
     if serie_adj_close.empty:
         raise ValueError("The series is empty. No data to process.")
-    print(serie_adj_close)
     adj_close = serie_adj_close.values
     adj_close_list = list(adj_close.flatten())
     year_month = np.array([f"{index.year}-{index.month:02}" for index in serie_adj_close.index].copy())
@@ -62,7 +61,6 @@ def filter_first_day_of_the_month(serie_adj_close: pd.Series):
         'annee_mois': year_month.copy(),
         'jour': day.copy(),
     })
-    print("Fanel:", adj_close_dataframe)
     premier_jour_adj_close = adj_close_dataframe.groupby('annee_mois')['jour'].min()
     premier_jour_adj_close = premier_jour_adj_close.rename("premier_jour")
     adj_close_dataframe = adj_close_dataframe.join(premier_jour_adj_close, on="annee_mois")
@@ -81,7 +79,6 @@ def filter_first_day_of_the_month(serie_adj_close: pd.Series):
 def get_rendement_actif_unique(actif: str, date_debut: datetime, date_fin: datetime, montant_initial: int, montant_recurrent: int):
     serie_adj_close = get_data(actif, date_debut, date_fin)["Adj Close"]
     filtered_series_adj_close = filter_first_day_of_the_month(serie_adj_close)
-    print("wakillll",filtered_series_adj_close)
     evolution_nb_actions = get_evolution_nb_actions(
     filtered_series_adj_close, montant_initial, montant_recurrent)
     investissement_cumule=get_investissement_cumule(
@@ -95,24 +92,39 @@ def get_rendement_actif_unique(actif: str, date_debut: datetime, date_fin: datet
 
     return rendements_dataframe
 
-def get_rendement_multi_actif(liste_actifs: list, liste_pourcentage_actifs: list, date_debut: datetime, date_fin: datetime, montant_initial: int, montant_recurrent: int):
-    if np.sum(liste_pourcentage_actifs)!=100:
-        raise ValueError("La somme des pourcentages d'investissement pour chaque actif doit etre égale à 100")
+def get_rendement_multi_actif(liste_actifs: list, liste_pourcentage_actifs: list, date_debut: datetime, date_fin: datetime, montant_initial: int, montant_recurrent: int, frais_gestion: float, frequence_contributions: str):
+    if np.sum(liste_pourcentage_actifs) != 100:
+        raise ValueError("La somme des pourcentages d'investissement pour chaque actif doit être égale à 100")
     
-    dict_df_rendements={}
-    for actif, pourcentage_actif in zip(liste_actifs,liste_pourcentage_actifs):
-        print("detected: what?")
-        dict_df_rendements[actif]=(get_rendement_actif_unique(actif=actif,date_debut=date_debut,date_fin=date_fin,montant_initial=montant_initial*pourcentage_actif/100,montant_recurrent=montant_recurrent*pourcentage_actif/100))
+    # Calculate contribution intervals
+    frequency_map = {
+        "monthly": 12,
+        "quarterly": 4,
+        "yearly": 1
+    }
+    if frequence_contributions not in frequency_map:
+        raise ValueError("Fréquence de contribution invalide. Choisissez parmi: 'monthly', 'quarterly', 'yearly'")
+    contributions_per_year = frequency_map[frequence_contributions]
 
+    dict_df_rendements = {}
+    for actif, pourcentage_actif in zip(liste_actifs, liste_pourcentage_actifs):
+        dict_df_rendements[actif] = get_rendement_actif_unique(
+            actif=actif,
+            date_debut=date_debut,
+            date_fin=date_fin,
+            montant_initial=montant_initial * pourcentage_actif / 100,
+            montant_recurrent=(montant_recurrent / contributions_per_year) * pourcentage_actif / 100
+        )
+    
+    df_rendements = pd.concat(dict_df_rendements, axis=1)
+    df_rendements = df_rendements.dropna(axis=0)
 
-    print("passed the detected")
-    df_rendements=pd.concat(dict_df_rendements,axis=1)
-    df_rendements=df_rendements.dropna(axis=0)
-    print("humm till now we good")
-
+    # Apply frais_gestion to rendements
     rendement_columns = [col for col in df_rendements.columns if "rendement" in col]
+    for col in rendement_columns:
+        df_rendements[col] = df_rendements[col] * (1 - frais_gestion / 100)  # Deduct management fees
+    
     investissement_cumule_columns = [col for col in df_rendements.columns if "investissement_cumule" in col]
-    print("columnshehe")
     total_col = pd.DataFrame(
         {
             ("TOTAL", "rendement"): df_rendements[rendement_columns].sum(axis=1),
@@ -121,13 +133,12 @@ def get_rendement_multi_actif(liste_actifs: list, liste_pourcentage_actifs: list
         index=df_rendements.index
     )
     print("total_col:", total_col)
-    df_rendements=pd.concat([df_rendements,total_col], axis=1)
+    df_rendements = pd.concat([df_rendements, total_col], axis=1)
 
     return df_rendements
 
-def add_acwi_reference(df_multi_actifs: pd.DataFrame,date_debut: datetime, date_fin: datetime, montant_initial: int, montant_recurrent: int):
-    print("test-----------------------------")
-    df_acwi=get_rendement_multi_actif(liste_actifs=['ACWI'], liste_pourcentage_actifs=[100], date_debut=date_debut, date_fin=date_fin, montant_initial=montant_initial, montant_recurrent=montant_recurrent)
+def add_acwi_reference(df_multi_actifs: pd.DataFrame,date_debut: datetime, date_fin: datetime, montant_initial: int, montant_recurrent: int, frais_gestion: float, frequence_contributions: str):
+    df_acwi=get_rendement_multi_actif(liste_actifs=['ACWI'], liste_pourcentage_actifs=[100], date_debut=date_debut, date_fin=date_fin, montant_initial=montant_initial, montant_recurrent=montant_recurrent,frais_gestion=frais_gestion, frequence_contributions=frequence_contributions)
     df_acwi=df_acwi.drop(labels="TOTAL",axis=1)
     return pd.concat((df_multi_actifs,df_acwi),axis=1)
 

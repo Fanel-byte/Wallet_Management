@@ -31,8 +31,7 @@ function Header() {
           <a href="#section1" className="hover:text-[#CFFF24] font-bold">Accueil</a>
           <a href="#section2" className="hover:text-[#CFFF24] font-bold">Mon Portefeuille</a>
           <a href="#section3" className="hover:text-[#CFFF24] font-bold">Performance</a>
-          <a href="#section4" className="hover:text-[#CFFF24] font-bold">Analyse</a>
-          <a href="#section5" className="hover:text-[#CFFF24] font-bold">Guide</a>
+          <a href="#section4" className="hover:text-[#CFFF24] font-bold">Guide</a>
         </div>
       </nav>
     </header>

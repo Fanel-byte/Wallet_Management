@@ -52,7 +52,6 @@ function Section2() {
             const json_figures = Object.fromEntries(
               Object.entries(result.data.json_figures).map(([key, value]) => [key, JSON.parse(value)])
             );
-            console.log(json_figures);
             setPlotData(json_figures);
           }
         } else {

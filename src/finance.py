@@ -4,10 +4,8 @@ import pandas as pd
 import matplotlib as mt
 import numpy as np
 import matplotlib.pyplot as plt
-import plotly
 import plotly.graph_objects as go
 from sklearn.linear_model import LinearRegression
-import json
 
 BASE_DATE = pd.Timestamp(2000,1,1)
 DATE_FORMAT = '%Y-%m-%d'

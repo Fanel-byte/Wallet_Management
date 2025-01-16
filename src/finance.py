@@ -88,6 +88,14 @@ def get_rendement_actif_unique(actif: str, date_debut: datetime, date_fin: datet
         "investissement_cumule": investissement_cumule,
     })
 
+     # Calcul de la volatilité
+    rendements_dataframe["volatilite"] = calcul_volatilite(filtered_series_adj_close)
+
+    # Calcul du rendement moyen annuel
+    rendements_annuels = (rendements_dataframe["adj_close"] / rendements_dataframe["adj_close"].iloc[0]) ** (1 / len(rendements_dataframe.index)) - 1
+    rendements_dataframe["sharpe_ratio"] = rendements_annuels / rendements_dataframe["volatilite"]
+
+
     return rendements_dataframe
 
 def get_rendement_multi_actif(liste_actifs: list, liste_pourcentage_actifs: list, date_debut: datetime, date_fin: datetime, montant_initial: int, montant_recurrent: int, frais_gestion: float, frequence_contributions: str):

@@ -39,7 +39,10 @@ def get_all_data():
     data = request.get_json()
     df_multi_actifs = process_data(data)
     
+    # Generate statistics DataFrame
     df_stats = get_stats_df(df_multi_actifs)
+    
+    # Add ACWI reference and process
     df_multi_actifs = add_acwi_reference(
         df_multi_actifs=df_multi_actifs,
         date_debut=string_to_date(data['dateDebut']),
@@ -50,6 +53,7 @@ def get_all_data():
         frequence_contributions=data['frequenceContributions']
     ).dropna()
 
+    # Generate figures
     figures = {
         "1.1-plot_rendement": get_plot_rendement(df_multi_actifs),
         "1.2-plot_histogram": get_plot_histogram(df_multi_actifs),
@@ -59,17 +63,21 @@ def get_all_data():
         "5-adj_close_plot": get_plot_adj_close(df_multi_actifs),
     }
 
+    # Convert figures to JSON
     json_figures = {key: convert_plotly_to_json(plot) for key, plot in figures.items()}
     
-    return jsonify({'success': 'true', 'json_figures': json_figures})
+    # Convert df_stats to JSON-compatible format
+    df_stats_json = df_stats.to_dict(orient='records')  # Convert to a list of dictionaries
+    
+    # Return both figures and stats
+    return jsonify({'success': 'true', 'json_figures': json_figures, 'df_stats': df_stats_json})
+
 
 @app.route('/metrics', methods=['POST'])
 def get_metrics():
     data = request.get_json()
     df_multi_actifs = process_data(data)
     df_stats = get_stats_df(df_multi_actifs)
-    print(df_stats)
-    print("aaaaaaaaaaaaaaaaaaaaaaaaa")
     stats_json = df_stats.to_dict(orient='records')  # Convert DataFrame to JSON
     return jsonify({'success': 'true', 'stats': stats_json})
 

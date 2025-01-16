@@ -28,7 +28,7 @@ const Etf = ({ listActifs, setListActifs }) => {
       <input
         type="text"
         className="p-2 w-full rounded text-black mb-2"
-        placeholder="Ex: GOOG"
+        placeholder="Ex: TSLA, NVDA, AMZN"
         value={currentInput}
         onChange={(e) => setCurrentInput(e.target.value)}
       />

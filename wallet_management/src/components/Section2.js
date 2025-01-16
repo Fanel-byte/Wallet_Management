@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import { Line } from "react-chartjs-2"; // Example usage of a chart (chart.js)
+import React, { useState , useEffect} from "react";
 import line from "./../assets/line.png"; 
 import axios from 'axios';
 import Etf from "./Etf";
 import Plot from 'react-plotly.js';
+import '../App.css';
 
 import {
   Chart as ChartJS,
@@ -21,18 +21,17 @@ ChartJS.register(LineElement, PointElement, CategoryScale, LinearScale, Title, T
 
 function Section2() {
   const [plotData, setPlotData] = useState(null);
+  const [statsData, setStatsData] = useState(null);
 
   const [dateDebut, setDateDebut] = useState('2012-12-12');
   const [dateFin, setDateFin] = useState('2024-12-12');
-  const [frequenceContributions, setFrequenceContributions] = useState('monthly'); // State to capture selected frequency
+  const [frequenceContributions, setFrequenceContributions] = useState('monthly');
 
   const [investInit, setInvestInit] = useState(20000);
   const [investRecu, setInvestRecu] = useState(1000);
   const [fraisGestion, setFraisGestion] = useState(50);
 
   const [listActifs, setListActifs] = useState([]);
-  const [isAnalysisStarted, setIsAnalysisStarted] = useState(false); // State for tracking button click
-
 
   const fetch_data = () => {
     const query_params = {
@@ -54,18 +53,17 @@ function Section2() {
             );
             setPlotData(json_figures);
           }
+
+          // Handle df_stats
+          if (result.data.df_stats) {
+            setStatsData(result.data.df_stats);
+          }
         } else {
-          console.log("error while fetching the data");
+          console.log("Error while fetching the data");
         }
       })
       .catch((error) => {
-        if (error.response) {
-          // Handle the error
-        } else if (error.request) {
-          // Handle the error
-        } else {
-          // Handle the error
-        }
+        console.error("An error occurred:", error);
       });
   };
 
@@ -73,21 +71,52 @@ function Section2() {
     if (plotData != null) {
       return (
         <div className="w-75 d-flex flex-column">
-          {
-            Object.entries(plotData).map(([plot_name, plot]) => (
-              <Plot
-                data={plot.data}
-                layout={plot.layout}
-              />
-            ))
-          }
+          {Object.entries(plotData).map(([plot_name, plot]) => (
+            <Plot
+              key={plot_name}
+              data={plot.data}
+              layout={plot.layout}
+            />
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  const get_stats = () => {
+    if (statsData != null) {
+      const statLabels = {
+        0: "Volatilite Mensuelle",
+        1: "Volatilite Annuelle",
+        2: "CAGR",
+        3: "Ratio Sharpe"
+      };
+      return (
+        <div className="stats-container">
+          <h2 className="text-3xl font-bold">Performance</h2>
+          <div className="flex justify-center mt-2">
+            <img 
+              src={line} // Replace this with the actual image path
+              alt="Decorative Line"
+              className="w-30 py-0"
+            />
+          </div>
+          <div className="stats-grid">
+            {Object.entries(statsData).map(([statName, statValue], index) => (
+              <div key={index} className="stat-card"> 
+                <h4>{statLabels[index]}</h4> 
+                <p>{Object.values(statValue)[index]}</p>
+              </div>
+            ))}
+          </div>
         </div>
       );
     } else {
       return null;
     }
   };
-
+  
   // Function to calculate date difference in years
   const calculateYearsDifference = () => {
     const startDate = new Date(dateDebut);
@@ -98,8 +127,6 @@ function Section2() {
   };
 
   const calculateInvestment = () => {
-    // Calculez le montant total de l'investissement dans le wallet
-    // Exemple : Montant initial + (contribution récurrente * nombre d'années)
     const totalInvestment = investInit + (investRecu * calculateYearsDifference() / 1000);
     return totalInvestment;
   };
@@ -108,10 +135,9 @@ function Section2() {
     <section id="section2" className="py-16 bg-black text-white">
       <div className="text-center mb-10">
         <h2 className="text-3xl font-bold">Mon Portefeuille</h2>
-        
         <div className="flex justify-center mt-2">
           <img
-            src={line}
+            src={line} // Replace this with the actual image path
             alt="Decorative Line"
             className="w-30 py-0"
           />
@@ -119,101 +145,87 @@ function Section2() {
       </div>
 
       <div className="flex justify-center items-center flex-col space-y-8">
-          <form>
-            <label className="block mb-4">
-              Montant initial d’investissement (€)
-              <input
-                type="number"
-                value={investInit}
-                id="portfolio_form_invest_init"
-                onChange={(e) => setInvestInit(e.target.value)}
-                className="mt-2 p-2 w-full rounded text-black"
-              />
-            </label>
-            <label className="block mb-4">
-              Montant des contributions récurrentes (€)
-              <input
-                type="number"
-                value={investRecu}
-                id="portfolio_form_invest_recu"
-                onChange={(e) => setInvestRecu(e.target.value)}
-                className="mt-2 p-2 w-full rounded text-black"
-                placeholder="Ex: 100"
-              />
-            </label>
-            <label className="block mb-4">
-              Fréquence des contributions
-              <select
-                value={frequenceContributions} // Set the selected value here
-                onChange={(e) => setFrequenceContributions(e.target.value)} // Update the state on change
-                className="mt-2 p-2 w-full rounded text-black"
-              >
-                <option value="monthly">Mois</option>
-                <option value="quarterly">Trimestre</option>
-                <option value="yearly">Année</option>
-              </select>
-            </label>
-            <label className="block mb-4 ">
-              Date début d’investissement
-              <input
-                type="date"
-                className="mt-2 p-2 w-full rounded text-black"
-                id="portfolio_form_date_debut" value={dateDebut} 
-                onChange={(e) => setDateDebut(e.target.value)}
-              />
-            </label>
-            <label className="block mb-4 ">
-              Date fin d’investissement
-              <input
-                type="date"
-                className="mt-2 p-2 w-full rounded text-black"
-                id="portfolio_form_date_fin" value={dateFin} 
-                onChange={(e) => setDateFin(e.target.value)}
-              />
-            </label>
-            <label className="block mb-4">
-              Frais de gestion annuels (€)
-              <input
-                type="number"
-                className="mt-2 p-2 w-full rounded text-black"
-                id="portfolio_form_frais_gestion" value={fraisGestion} 
-                onChange={(e) => setFraisGestion(e.target.value)}
-              />
-            </label>
-            <Etf listActifs={listActifs} setListActifs={setListActifs} />              
-            {/* Button to start calculation */}
-            <button
-              type="button"
-              className="bg-[#CFFF24] text-black py-2 px-6 rounded-lg mt-4 hover:bg-[#A3D500] transition font-bold w-full"
-              onClick={() => {
-                console.log("fetching")
-                fetch_data()
-                setIsAnalysisStarted(true);
-                console.log("Calculation started!");
-                console.log(listActifs)
-                // Add your calculation logic here
-              }}
+        <form>
+          <label className="block mb-4">
+            Montant initial d’investissement (€)
+            <input
+              type="number"
+              value={investInit}
+              id="portfolio_form_invest_init"
+              onChange={(e) => setInvestInit(e.target.value)}
+              className="mt-2 p-2 w-full rounded text-black"
+            />
+          </label>
+          <label className="block mb-4">
+            Montant des contributions récurrentes (€)
+            <input
+              type="number"
+              value={investRecu}
+              id="portfolio_form_invest_recu"
+              onChange={(e) => setInvestRecu(e.target.value)}
+              className="mt-2 p-2 w-full rounded text-black"
+              placeholder="Ex: 100"
+            />
+          </label>
+          <label className="block mb-4">
+            Fréquence des contributions
+            <select
+              value={frequenceContributions}
+              onChange={(e) => setFrequenceContributions(e.target.value)}
+              className="mt-2 p-2 w-full rounded text-black"
             >
-              Commencer L'analyse
-            </button>
-          </form>
-          <div className="w-full max-w-xl text-center">
-            {get_figures()}
-          </div>
+              <option value="monthly">Mois</option>
+              <option value="quarterly">Trimestre</option>
+              <option value="yearly">Année</option>
+            </select>
+          </label>
+          <label className="block mb-4 ">
+            Date début d’investissement
+            <input
+              type="date"
+              className="mt-2 p-2 w-full rounded text-black"
+              id="portfolio_form_date_debut" 
+              value={dateDebut} 
+              onChange={(e) => setDateDebut(e.target.value)}
+            />
+          </label>
+          <label className="block mb-4 ">
+            Date fin d’investissement
+            <input
+              type="date"
+              className="mt-2 p-2 w-full rounded text-black"
+              id="portfolio_form_date_fin" 
+              value={dateFin} 
+              onChange={(e) => setDateFin(e.target.value)}
+            />
+          </label>
+          <label className="block mb-4">
+            Frais de gestion annuels (€)
+            <input
+              type="number"
+              className="mt-2 p-2 w-full rounded text-black"
+              id="portfolio_form_frais_gestion" 
+              value={fraisGestion} 
+              onChange={(e) => setFraisGestion(e.target.value)}
+            />
+          </label>
+          <Etf listActifs={listActifs} setListActifs={setListActifs} />              
+          <button
+            type="button"
+            className="bg-[#CFFF24] text-black py-2 px-6 rounded-lg mt-4 hover:bg-[#A3D500] transition font-bold w-full"
+            onClick={() => {
+              console.log("fetching");
+              fetch_data();
+            }}
+          >
+            Commencer L'analyse
+          </button>
+        </form>
+        <div className="w-full max-w-xl text-center">
+          {get_figures()}
+          {get_stats()}
+        </div>
       </div>
-
-      {isAnalysisStarted && (
-      <div className="flex items-center justify-center py-15">
-        <h1 className="text-3xl font-bold text-center py-100">
-          Avec ce taux, au bout de <span className="text-[#CFFF24]">{calculateYearsDifference()}</span> ans, vous aurez 
-          <span className="text-[#CFFF24]"> {calculateInvestment()}€ </span> dans votre 
-          <span className="text-[#CFFF24]"> Wallet </span> !
-        </h1>
-      </div>
-)}
-
-
-      
     </section>
   );
 }

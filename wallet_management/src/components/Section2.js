@@ -105,8 +105,8 @@ function Section2() {
           <div className="stats-grid">
             {Object.entries(statsData).map(([statName, statValue], index) => (
               <div key={index} className="stat-card"> 
-                <h4>{statLabels[index]}</h4> 
-                <p>{Object.values(statValue)[index]}</p>
+                <h4 className="text-black" >{statLabels[index]}</h4> 
+                <p className="text-black">{Object.values(statValue)[index]}</p>
               </div>
             ))}
           </div>

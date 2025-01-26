@@ -92,23 +92,27 @@ function Section2() {
         2: "CAGR",
         3: "Ratio Sharpe"
       };
+  
       return (
         <div className="stats-container">
           <h2 className="text-3xl font-bold">Performance</h2>
           <div className="flex justify-center mt-2">
-            <img 
-              src={line} // Replace this with the actual image path
+            <img
+              src={line}
               alt="Decorative Line"
               className="w-30 py-0"
             />
           </div>
           <div className="stats-grid">
-            {Object.entries(statsData).map(([statName, statValue], index) => (
-              <div key={index} className="stat-card"> 
-                <h4 className="text-black" >{statLabels[index]}</h4> 
-                <p className="text-black">{Object.values(statValue)[index]}</p>
-              </div>
-            ))}
+            {statsData.map((stat, idx) => {
+              const value = Object.values(stat)[0]; // Get the first value in the object
+              return (
+                <div key={idx} className="stat-card">
+                  <h4 className="text-black">{statLabels[idx]}</h4>
+                  <p className="text-black">{value}</p> {/* Display the value */}
+                </div>
+              );
+            })}
           </div>
         </div>
       );
@@ -117,6 +121,7 @@ function Section2() {
     }
   };
   
+  
   // Function to calculate date difference in years
   const calculateYearsDifference = () => {
     const startDate = new Date(dateDebut);
@@ -124,11 +129,6 @@ function Section2() {
     const diffInTime = endDate.getTime() - startDate.getTime();
     const diffInYears = diffInTime / (1000 * 3600 * 24 * 365.25); // 365.25 to account for leap years
     return diffInYears.toFixed(2); // rounding to two decimal places
-  };
-
-  const calculateInvestment = () => {
-    const totalInvestment = investInit + (investRecu * calculateYearsDifference() / 1000);
-    return totalInvestment;
   };
 
   return (

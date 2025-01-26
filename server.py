@@ -2,7 +2,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from src.finance import get_rendement_multi_actif, get_stats_df,add_acwi_reference, get_stats_df
 from src.date_utils import string_to_date
-from src.plot import get_plot_adj_close, get_plot_histogram, get_plot_rendement,get_plot_investissement, get_table_stats,get_plot_prediction_rendement,convert_plotly_to_json
+from src.plot import get_plot_adj_close,get_plot_rendement,get_plot_investissement, get_table_stats,get_plot_prediction_rendement,convert_plotly_to_json
 
 app = Flask(__name__)
 CORS(app)
@@ -56,7 +56,6 @@ def get_all_data():
     # Generate figures
     figures = {
         "1.1-plot_rendement": get_plot_rendement(df_multi_actifs),
-        "1.2-plot_histogram": get_plot_histogram(df_multi_actifs),
         "2-plot_investissement": get_plot_investissement(df_multi_actifs.drop(labels="ACWI", axis=1)),
         "3-table_stats": get_table_stats(df_stats),
         "4-plot_prediction_rendement": get_plot_prediction_rendement(df_multi_actifs),

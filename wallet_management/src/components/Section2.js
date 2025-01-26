@@ -105,11 +105,11 @@ function Section2() {
           </div>
           <div className="stats-grid">
             {statsData.map((stat, idx) => {
-              const value = Object.values(stat)[0]; // Get the first value in the object
+              const value = Object.values(stat)[0];
               return (
                 <div key={idx} className="stat-card">
                   <h4 className="text-black">{statLabels[idx]}</h4>
-                  <p className="text-black">{value}</p> {/* Display the value */}
+                  <p className="text-black">{value}</p> 
                 </div>
               );
             })}
@@ -121,15 +121,7 @@ function Section2() {
     }
   };
   
-  
-  // Function to calculate date difference in years
-  const calculateYearsDifference = () => {
-    const startDate = new Date(dateDebut);
-    const endDate = new Date(dateFin);
-    const diffInTime = endDate.getTime() - startDate.getTime();
-    const diffInYears = diffInTime / (1000 * 3600 * 24 * 365.25); // 365.25 to account for leap years
-    return diffInYears.toFixed(2); // rounding to two decimal places
-  };
+
 
   return (
     <section id="section2" className="py-16 bg-black text-white">
@@ -137,7 +129,7 @@ function Section2() {
         <h2 className="text-3xl font-bold">Mon Portefeuille</h2>
         <div className="flex justify-center mt-2">
           <img
-            src={line} // Replace this with the actual image path
+            src={line} 
             alt="Decorative Line"
             className="w-30 py-0"
           />
